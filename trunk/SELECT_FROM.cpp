@@ -3,23 +3,26 @@
 #include <map>
 
 class Table{
-	
+	map<string,Column> column_list(){return columns;};
+	vector get_tuple(int id_number);
 };
 
 class Column{
-	
+	map<int,TYPE> id_list(){return ids;}
+	void add_tuple(vector);
 };
 
-/* Send in "ALL" for select if '*' was used, if "AS"*/
-Table select_from_where(string select,vector<string> table_names,void(*where_func)(),map<string,string> aliases = NULL ){
-	Table new_table(""); //NOT DONE FIGURE OUT NEW TABLE NAME
-	if(select == "ALL"){
+/*  This method is used for basic select_from_where commands 
+	Send in "All" for select if '*' was used, if "AS"*/
+Table select_from_where(string new_table_name, string select,vector<string> table_names,void(*where_func)(),map<string,string> aliases = NULL ){
+	Table new_table(new_table_name); 
+	if(select == "All"){
 		for (int i = 0; i < table_names.size(); ++i)
 		{
 			/* iterate through all columns */
 			map<string,Column>::iterator table_iterator;
-			map<string,Column>::iterator new_table_iterator = new_table.begin();
-			for (table_iterator = table_names[i].begin(); table_iterator != table_names[i].end(); table_iterator++)
+			map<string,Column>::iterator new_table_iterator = new_table.column_list.begin();
+			for (table_iterator = table_names[i].column_list().begin(); table_iterator != table_names[i].end(); table_iterator++)
 			{
 				Column current_column = table_iterator->second();
 				/* If "AS" was used to assign the column a new name then, the new name is used */
@@ -31,20 +34,21 @@ Table select_from_where(string select,vector<string> table_names,void(*where_fun
 				}
 				Column new_column = new_table_iterator->second();
 				/* Apply where condition to all elements */
-				map<int,TYPE>::iterator column_iterator;
-				for (column_iterator = current_column.begin(); column_iterator != current_column.end(); column_iterator++)
+				map<int,TYPE>::iterator column_iterator;//Type to be changed
+				for (column_iterator = current_column.id_list().begin(); column_iterator != current_column.end(); column_iterator++)
 				{
 					if(where_func(column_iterator->second())){
-						new_column.add_tuple(column_iterator->first()) // send id of tuple to new tables column to be added COLUMN METHOD ADD_TUPLE
+						new_column.add_tuple(table_names[i].get_tuple(column_iterator->first())) // use id of tuple to get complete tuple and send to column COLUMN METHOD ADD_TUPLE
 					}
 				}
 				new_table_iterator++;
 			}
-
 		}
 	}
 	else {
-		
+		for (int i = 0; i < table_names.size(); ++i){
+			Column current_column = table_names[i].column_list()[select];
+		}
 	}
 }
 
